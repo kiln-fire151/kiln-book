@@ -1,0 +1,1058 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Kiln Book</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Kiln Book">
+<meta name="theme-color" content="#2b4a8c">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<style>
+:root{
+  --bg:#e9ecea; --panel:#f6f7f5; --ink:#2b2622; --muted:#69665f; --line:#d0d6d0;
+  --celadon:#6f9d8b; --cobalt:#2b4a8c; --iron:#7b3a20; --field:#fff;
+  --serif:"Iowan Old Style","Palatino","Georgia",serif;
+  --sans:"Avenir Next","Avenir","Helvetica Neue",system-ui,sans-serif;
+}
+@media (prefers-color-scheme:dark){
+  :root{--bg:#1d2220; --panel:#262c29; --ink:#e8e6e1; --muted:#a29f97; --line:#3a423e; --celadon:#86b3a1; --cobalt:#8fa9e6; --iron:#d58a66; --field:#1d2220}
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 var(--sans)}
+header{display:flex;flex-wrap:wrap;gap:12px 20px;align-items:center;padding:14px 24px;border-bottom:1px solid var(--line);background:var(--panel)}
+h1{font:600 26px/1 var(--serif);margin:0;letter-spacing:.01em}
+nav{display:flex;gap:4px}
+nav button{background:none;border:0;border-bottom:2px solid transparent;padding:6px 10px;font:inherit;color:var(--muted);cursor:pointer}
+nav button[aria-current="page"]{color:var(--ink);border-color:var(--cobalt)}
+.spacer{flex:1}
+.lookup{display:flex;gap:6px;align-items:center}
+input,select,textarea{font:inherit;color:var(--ink);background:var(--field);border:1px solid var(--line);border-radius:5px;padding:7px 9px;width:100%}
+.lookup input{width:160px}
+button.btn{font:inherit;border:1px solid var(--line);background:var(--panel);color:var(--ink);border-radius:5px;padding:7px 12px;cursor:pointer}
+button.btn:hover{border-color:var(--cobalt)}
+button.btn:disabled{opacity:.45;cursor:default}
+button.primary{background:var(--cobalt);border-color:var(--cobalt);color:#fff}
+@media (prefers-color-scheme:dark){button.primary{color:#10151f}}
+button.danger{color:var(--iron)}
+:focus-visible{outline:2px solid var(--cobalt);outline-offset:2px}
+main{max-width:1100px;margin:0 auto;padding:20px 24px 80px}
+.toolbar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:18px}
+.toolbar input[type=search]{max-width:240px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{border:1px solid var(--line);background:none;border-radius:99px;padding:3px 11px;font:inherit;font-size:13px;color:var(--muted);cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:16px}
+.card{position:relative;background:var(--panel);border:1px solid var(--line);border-radius:8px;overflow:hidden;cursor:pointer;text-align:left;padding:0;font:inherit;color:inherit}
+.card:hover{border-color:var(--cobalt)}
+.card.sel{border-color:var(--cobalt);box-shadow:0 0 0 2px var(--cobalt)}
+.tick{position:absolute;top:8px;left:8px;z-index:2;width:26px;height:26px;border-radius:50%;background:var(--panel);border:2px solid var(--cobalt);color:var(--cobalt);display:grid;place-items:center;font-weight:700}
+.card.sel .tick{background:var(--cobalt);color:#fff}
+.thumb{aspect-ratio:4/3;background:var(--bg);display:grid;place-items:center;color:var(--line);position:relative;overflow:hidden}
+.thumb img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
+.card .body{padding:10px 12px 12px}
+.card h3{font:600 18px/1.2 var(--serif);margin:0 0 2px}
+.meta{color:var(--muted);font-size:13px}
+.kiln{display:flex;gap:3px;margin:9px 0 4px}
+.kiln i{flex:1;height:5px;border-radius:2px;background:var(--line)}
+.kiln i.on{background:var(--celadon)}
+.kiln i.cur{background:var(--iron)}
+.stage{font-size:12.5px;color:var(--iron)}
+.rows{display:grid;gap:8px}
+.row{display:grid;grid-template-columns:110px 70px 1fr auto;gap:12px;align-items:center;background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:10px 14px;cursor:pointer;text-align:left;font:inherit;color:inherit;width:100%}
+.row:hover{border-color:var(--cobalt)}
+.cone{font:600 17px var(--serif);color:var(--cobalt)}
+.empty{padding:40px 0;color:var(--muted);text-align:center}
+.tag{display:inline-block;font-size:12px;border:1px solid var(--iron);color:var(--iron);border-radius:99px;padding:0 8px;margin-left:6px}
+.selbar{position:sticky;bottom:14px;margin-top:18px;display:flex;gap:10px;align-items:center;background:var(--panel);border:1px solid var(--cobalt);border-radius:8px;padding:10px 14px}
+dialog{border:1px solid var(--line);border-radius:10px;background:var(--panel);color:var(--ink);width:min(860px,95vw);padding:0;max-height:92vh}
+dialog::backdrop{background:rgba(20,24,22,.5)}
+.dlg{padding:20px 22px;display:grid;gap:12px}
+.dlg h2{font:600 22px var(--serif);margin:0}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.three{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.four{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+label{display:grid;gap:4px;font-size:13px;color:var(--muted)}
+textarea{min-height:70px;resize:vertical}
+.actions{display:flex;gap:8px;align-items:center;margin-top:4px}
+.pick{display:flex;gap:6px}
+.pick select{flex:1;min-width:0}
+.pick .add{padding:6px 10px;white-space:nowrap}
+h4{margin:6px 0 0;font:600 15px var(--serif);color:var(--ink)}
+.photos{display:flex;flex-wrap:wrap;gap:8px}
+.ph{position:relative;width:104px;height:104px;cursor:grab;border-radius:5px}
+.ph.cover{outline:2px solid var(--cobalt);outline-offset:1px}
+.ph.over{outline:2px dashed var(--iron)}
+.ph img{width:100%;height:100%;object-fit:cover;border-radius:5px;border:1px solid var(--line);cursor:zoom-in}
+.ph .pbar{position:absolute;left:0;right:0;bottom:0;display:flex;justify-content:space-between;padding:1px 3px;background:linear-gradient(transparent,rgba(0,0,0,.65));border-radius:0 0 5px 5px}
+.ph .pbar button,.ph .rm{border:0;background:none;color:#fff;font-size:16px;line-height:1.4;cursor:pointer;padding:0 3px}
+.ph .rm{position:absolute;top:3px;right:3px;width:22px;height:22px;border-radius:50%;background:rgba(0,0,0,.65);padding:0;line-height:1}
+.ph .cv{position:absolute;top:4px;left:4px;font-size:11px;background:var(--cobalt);color:#fff;border-radius:3px;padding:0 5px}
+.dz{border:2px dashed var(--line);border-radius:8px;padding:12px;text-align:center;color:var(--muted);font-size:13px}
+.dz.over{border-color:var(--cobalt);background:var(--bg)}
+.grow{display:grid;grid-template-columns:100px 1.5fr 110px 110px 1fr 44px 26px;gap:6px;align-items:center}
+.grow.gh{font-size:12px;color:var(--muted)}
+.grow select,.grow input{padding:5px 6px}
+.grow .pick .add{padding:4px 8px}
+.hrow{display:grid;grid-template-columns:130px 150px 1fr 26px;gap:6px;align-items:center}
+.x{border:0;background:none;color:var(--muted);font-size:20px;cursor:pointer;line-height:1}
+.x:hover{color:var(--iron)}
+.checks{display:grid;gap:4px;max-height:260px;overflow:auto;border:1px solid var(--line);border-radius:5px;padding:6px;background:var(--field)}
+.pk{display:grid;grid-template-columns:22px 40px 1fr auto;gap:10px;align-items:center;font-size:14px;color:var(--ink);padding:3px 2px}
+.pk input{width:auto}
+.pk img,.pk .noimg{width:40px;height:40px;object-fit:cover;border-radius:4px;background:var(--bg)}
+.pk.dis{opacity:.5}
+.links a{color:var(--cobalt)}
+.g_link{font-size:12px;color:var(--cobalt)}
+.note{color:var(--muted);font-size:13px;margin-top:28px;border-top:1px solid var(--line);padding-top:12px}
+.hist{font-size:13px;color:var(--muted)}
+#lb{width:min(1000px,96vw);background:transparent;border:0;padding:0}
+#lb img{width:100%;max-height:92vh;object-fit:contain;display:block;border-radius:6px;cursor:zoom-out}
+.grp{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:14px 16px;margin-bottom:16px}
+.grp h3{font:600 20px var(--serif);margin:0}
+.ck{display:grid;grid-template-columns:24px 64px 1fr;gap:12px;align-items:center;padding:8px 0;border-top:1px solid var(--line);cursor:pointer;color:var(--ink);font-size:15px}
+.ck:first-of-type{margin-top:8px}
+.ck input{width:20px;height:20px}
+.ck img,.ck .noimg{width:64px;height:64px;object-fit:cover;border-radius:6px;background:var(--bg)}
+.ck .look{color:var(--muted);font-size:13px}
+.banner{display:flex;gap:12px;align-items:center;background:var(--panel);border:1px solid var(--celadon);border-radius:8px;padding:8px 14px;margin-bottom:14px}
+details summary{cursor:pointer;color:var(--muted);font-size:13px;margin-top:8px}
+.mrow{display:grid;grid-template-columns:1fr 70px auto auto;gap:8px;align-items:center;padding:5px 0;border-top:1px solid var(--line)}
+.mrow.glz{grid-template-columns:1fr 60px 1.2fr auto auto}
+body.phone header{display:none}
+body.phone main{padding:10px 14px 90px;max-width:none}
+body.phone input,body.phone select,body.phone textarea{font-size:16px;padding:10px}
+.pbar2{display:flex;align-items:center;gap:12px;position:sticky;top:0;background:var(--bg);padding:8px 0;margin-bottom:10px;z-index:5}
+.pback{border:0;background:none;color:var(--cobalt);font:inherit;font-size:17px;padding:6px 8px 6px 0;cursor:pointer}
+.home{display:grid;gap:14px;padding-top:20px}
+.bigbtn{min-height:76px;font:600 21px var(--serif);border:1px solid var(--line);background:var(--panel);color:var(--ink);border-radius:12px;width:100%;cursor:pointer;display:grid;place-items:center}
+.bigbtn.primary{background:var(--cobalt);color:#fff;border-color:var(--cobalt)}
+@media (prefers-color-scheme:dark){.bigbtn.primary{color:#10151f}}
+.btn.big{min-height:52px;font-size:16px;width:100%}
+.pair{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.pform{display:grid;gap:14px}
+.prow{display:grid;grid-template-columns:64px 1fr;gap:12px;align-items:center;text-align:left;width:100%;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:8px;font:inherit;color:inherit;cursor:pointer;margin-bottom:8px}
+.prow img,.prow .noimg{width:64px;height:64px;border-radius:6px;object-fit:cover;background:var(--bg);display:block}
+.flash{position:fixed;left:50%;bottom:28px;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 18px;border-radius:99px;z-index:50;max-width:90vw;text-align:center}
+.coat{border:1px solid var(--line);border-radius:10px;padding:10px;display:grid;gap:8px;background:var(--panel)}
+.bigimg{width:100%;max-height:50vh;object-fit:contain;border-radius:8px;background:var(--bg)}
+.facts{display:grid;gap:4px}
+@media (max-width:700px){.row{grid-template-columns:90px 50px 1fr}.row .cnt{display:none}.two,.three{grid-template-columns:1fr}.four{grid-template-columns:1fr 1fr}.grow{grid-template-columns:1fr 1fr}.hrow{grid-template-columns:1fr 1fr}}
+</style>
+</head>
+<body>
+<header>
+  <h1>Kiln Book</h1>
+  <nav id="nav">
+    <button data-view="pieces">Pieces</button>
+    <button data-view="firings">Firings</button>
+    <button data-view="check" id="navCheck">Checklist</button>
+  </nav>
+  <div class="spacer"></div>
+  <form class="lookup" id="lookup" aria-label="Look something up">
+    <input id="lq" placeholder="Look up a term or glaze" aria-label="Term to look up">
+    <button class="btn" type="button" data-site="df">Digitalfire</button>
+    <button class="btn" type="button" data-site="gz">Glazy</button>
+  </form>
+  <button class="btn" id="listsBtn" type="button">Lists</button>
+  <button class="btn" id="sendBtn" type="button">Send changes</button>
+  <button class="btn" id="exportBtn" type="button">Export backup</button>
+  <button class="btn" id="importBtn" type="button">Import</button>
+  <input type="file" id="importFile" accept="application/json" hidden>
+</header>
+<main id="main"></main>
+<dialog id="dlg"></dialog>
+<dialog id="lb"><img id="lbImg" alt="Photo"></dialog>
+
+<script>
+const STAGES=["Idea","Formed","Trimmed","Bisqued","Glazed","Finished"];
+const CONES=["022","021","020","019","018","017","016","015","014","013","012","011","010","09","08","07","06","05","04","03","02","01","1","2","3","4","5","6","7","8","9","10","11","12"];
+const FIRE_KINDS=["Bisque","Oxidation","Reduction","Soda","Other"];
+const KINDS=["Glaze","Oxide","Slip","Underglaze","Stain"];
+const KEYOF={Glaze:"glaze",Oxide:"oxide",Slip:"slip",Underglaze:"underglaze",Stain:"stain"};
+const KINDOF=Object.fromEntries(Object.entries(KEYOF).map(([k,v])=>[v,k]));
+const LISTDEFS=[["clay","Clay bodies"],["form","Forms"],["method","Forming methods"],["glaze","Glazes"],["oxide","Oxides"],["slip","Slips"],["underglaze","Underglazes"],["stain","Stains"],["application","Application methods"],["location","Locations"],["area","Glaze areas"]];
+function defaultLists(){return{
+  clay:["1/2 & 1/2","BeeMix","Speckled Buff","Speckled Buff/1/2 & 1/2","Arroyo Wild","Black Mountain","Recycled/Pug"],
+  form:["Bowl","Coffee cup","Cup, no handle","Espresso","Jar","Moon Jar","Mug","Pitcher","Planter","Plate","Platter","Tea cup","Teapot","Test Tile","Tureen","Urn","Vase"],
+  method:["Coiled","Pinched","Slab built","Wheel thrown","Wheel thrown, altered"],
+  glaze:["Black matte","Blue Celadon","Celadon, reduction","Clear","Floating Blue","Green, CuTi (crowd pleaser)","Red Ochre","Reitz Green","Shino","Tenmoku","White, Majolica","White, matte","Horsely Yellow","Yellow Salt","Arroyo Blue"],
+  oxide:["Helmer","Copper"],slip:[],underglaze:[],stain:[],
+  application:["Brushed","Dipped","Poured","Sponged","Sprayed"],
+  location:["Asian Art Museum","COM Studio","Shelf, formed","Shelf, greenware","Shelf, oxidation","Shelf, reduction","Shelf, soda","Home","Gifted","Petaluma Pottery"],
+  area:["All over","Base","Bottom","Inside","Lid","Outside","Rim"],
+  glazeUrls:{}
+};}
+
+const $=s=>document.querySelector(s);
+const esc=s=>String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const uid=()=>(crypto.randomUUID?crypto.randomUUID():String(Date.now())+Math.random().toString(16).slice(2));
+const today=()=>{const d=new Date();return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");};
+const cmp=(a,b)=>a.localeCompare(b,undefined,{sensitivity:"base"});
+const dfUrl=t=>"https://www.google.com/search?q="+encodeURIComponent("site:digitalfire.com "+t);
+const gzUrl=t=>"https://glazy.org/search?base_type=-1&q="+encodeURIComponent(t);
+
+let db,pieces=[],firings=[],lists=defaultLists(),listsDirty=false,tombstones={},syncState={};
+let view="pieces",stageFilter="All",query="",checkQ="",memoryOnly=false;
+let selecting=false,selected=new Set(),lastFound=null;
+
+/* ---------- storage ---------- */
+function openDB(){return new Promise((res,rej)=>{
+  const r=indexedDB.open("kilnbook",2);
+  r.onupgradeneeded=()=>{const d=r.result;
+    for(const n of ["pieces","firings"])if(!d.objectStoreNames.contains(n))d.createObjectStore(n,{keyPath:"id"});
+    if(!d.objectStoreNames.contains("settings"))d.createObjectStore("settings",{keyPath:"key"});};
+  r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error);
+});}
+function tx(store,mode,fn){return new Promise((res,rej)=>{
+  const t=db.transaction(store,mode);const out=fn(t.objectStore(store));
+  t.oncomplete=()=>res(out&&out.result);t.onerror=()=>rej(t.error);
+});}
+async function save(store,obj,keep){ if(!keep){obj.edited=Date.now();obj.dirty=true;} if(!memoryOnly) await tx(store,"readwrite",s=>s.put(obj)); }
+async function saveSettings(key,value){ if(!memoryOnly) await tx("settings","readwrite",s=>s.put({key,value})); }
+async function remove(store,id){ tombstones[id]={store,edited:Date.now(),dirty:true}; await saveSettings("tombs",tombstones); if(!memoryOnly) await tx(store,"readwrite",s=>s.delete(id)); }
+async function saveLists(){ return saveSettings("lists",lists); }
+function fillMissing(l){const d=defaultLists();for(const k of Object.keys(d)){if(!l[k])l[k]=d[k];}return l;}
+function mergeLists(into,inc){
+  for(const [k] of LISTDEFS){for(const v of (inc[k]||[])){if(!into[k].includes(v))into[k].push(v);}}
+  for(const [n,u] of Object.entries(inc.glazeUrls||{})){if(!into.glazeUrls[n])into.glazeUrls[n]=u;}
+}
+
+/* ---------- migration of older data ---------- */
+function normGlaze(g,flag){
+  if(g.kind)return g;
+  flag.ch=true;
+  const bits=(g.note||"").split(",").map(s=>s.trim()).filter(Boolean);
+  let kind="Glaze",method="";const rest=[];
+  for(const b of bits){
+    const l=b.toLowerCase();
+    if(l==="stain")kind="Stain";else if(l==="oxide")kind="Oxide";else if(l==="slip")kind="Slip";else if(l==="underglaze")kind="Underglaze";
+    else{const m=lists.application.find(a=>a.toLowerCase()===l);if(m&&!method)method=m;else rest.push(b);}
+  }
+  if(g.url&&!lists.glazeUrls[g.name]){lists.glazeUrls[g.name]=g.url;listsDirty=true;}
+  return {kind,name:g.name||"",area:g.area||"",method,note:rest.join(", ")};
+}
+function normalizePiece(p){
+  const flag={ch:false};
+  if(!Array.isArray(p.stages)){p.stages=[];flag.ch=true;}
+  if(!Array.isArray(p.photos)){p.photos=[];flag.ch=true;}
+  if(!Array.isArray(p.glazes)){p.glazes=[];flag.ch=true;}
+  p.glazes=p.glazes.map(g=>normGlaze(g,flag));
+  if(typeof p.cover!=="number")p.cover=0;
+  return flag.ch;
+}
+function normalizeFiring(f){
+  let ch=false;
+  if(f.type==="Glaze"){f.type=["Oxidation","Reduction","Soda"].includes(f.atmosphere)?f.atmosphere:"Other";ch=true;}
+  if(!FIRE_KINDS.includes(f.type)){f.type="Other";ch=true;}
+  if(!f.collected){f.collected={};ch=true;}
+  if(!f.filled){f.filled={};ch=true;}
+  if(f.shelf===undefined){f.shelf="";ch=true;}
+  if(!Array.isArray(f.pieceIds)){f.pieceIds=[];ch=true;}
+  return ch;
+}
+
+async function init(){
+  try{
+    db=await openDB();
+    pieces=await tx("pieces","readonly",s=>s.getAll());
+    firings=await tx("firings","readonly",s=>s.getAll());
+    const st=await tx("settings","readonly",s=>s.get("lists"));
+    if(st){lists=fillMissing(st.value);}else{lists=defaultLists();listsDirty=true;}
+    const sy=await tx("settings","readonly",s=>s.get("sync"));syncState=sy?sy.value:{};
+    const tb=await tx("settings","readonly",s=>s.get("tombs"));tombstones=tb?tb.value:{};
+    for(const p of pieces){let ch=normalizePiece(p);if(!p.edited){p.edited=Date.now();p.dirty=true;ch=true;}if(ch)await save("pieces",p,true);}
+    for(const f of firings){let ch=normalizeFiring(f);if(!f.edited){f.edited=Date.now();f.dirty=true;ch=true;}if(ch)await save("firings",f,true);}
+    if(listsDirty){await saveLists();listsDirty=false;}
+    if(navigator.storage&&navigator.storage.persist)navigator.storage.persist();
+  }catch(e){
+    memoryOnly=true;
+    for(const p of pieces)normalizePiece(p);
+  }
+  render();
+}
+
+/* ---------- helpers ---------- */
+const isOpen=f=>f.open===true;
+const activeFiringOf=(pid,exceptId)=>firings.find(f=>f.id!==exceptId&&isOpen(f)&&f.pieceIds.includes(pid)&&!f.collected[pid]);
+const remaining=f=>f.pieceIds.filter(id=>!f.collected[id]&&pieces.some(p=>p.id===id));
+const coverOf=p=>p.photos&&p.photos.length?p.photos[Math.min(p.cover||0,p.photos.length-1)]:"";
+const lookOf=p=>(p.glazes||[]).map(g=>(g.area?g.area+": ":"")+g.name).join("; ");
+const searchText=p=>JSON.stringify([p.name,p.clay,p.form,p.method,p.notes,p.glazes,p.location,p.atmosphere,p.stage]).toLowerCase();
+const pieceFirings=id=>firings.filter(f=>f.pieceIds.includes(id)).sort((a,b)=>(a.date||"").localeCompare(b.date||""));
+const vessel=`<svg width="64" height="64" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M24 10h16M26 10c0 6-12 10-12 26 0 10 7 18 18 18s18-8 18-18c0-16-12-20-12-26"/></svg>`;
+
+function optsHTML(key,cur,o={}){
+  const L=[...(lists[key]||[])].sort(cmp);
+  if(cur&&!L.includes(cur))L.push(cur);
+  return (o.blank?`<option value=""${cur?"":" selected"}></option>`:"")+L.map(v=>`<option${v===cur?" selected":""}>${esc(v)}</option>`).join("")+(o.add?`<option value="__add__">＋ Add new…</option>`:"");
+}
+function pickHTML(id,key,cur,label){
+  return `<label>${label}<div class="pick"><select id="${id}" data-key="${key}" data-blank="1" data-prev="${esc(cur)}">${optsHTML(key,cur,{blank:true})}</select><button type="button" class="btn add" data-add>+ Add</button></div></label>`;
+}
+function addItem(key){
+  const n=(prompt("Add a new entry to this list:")||"").trim();
+  if(!n)return null;
+  const ex=lists[key].find(x=>x.toLowerCase()===n.toLowerCase());
+  if(ex)return ex;
+  lists[key].push(n);
+  saveLists().catch(()=>{});
+  return n;
+}
+function fillSel(sel,cur){
+  sel.innerHTML=optsHTML(sel.dataset.key,cur,{blank:sel.dataset.blank==="1",add:sel.dataset.addopt==="1"});
+  sel.value=cur;sel.dataset.prev=cur;
+}
+function refreshKey(key,except){
+  document.querySelectorAll(`select[data-key="${key}"]`).forEach(s=>{if(s!==except)fillSel(s,s.value==="__add__"?"":s.value);});
+}
+const dlgSelVal=s=>s.value==="__add__"?"":s.value;
+
+/* ---------- main render ---------- */
+function render(){
+  if(PHONE){renderPhone();return;}
+  const left=firings.filter(isOpen).reduce((n,f)=>n+remaining(f).length,0);
+  $("#navCheck").textContent="Checklist"+(left?" ("+left+")":"");
+  document.querySelectorAll("#nav button").forEach(b=>b.setAttribute("aria-current",b.dataset.view===view?"page":"false"));
+  const body=view==="pieces"?piecesHTML():view==="firings"?firingsHTML():checklistHTML();
+  $("#main").innerHTML=(memoryOnly?`<p class="note" style="margin:0 0 14px;border:0;color:var(--iron)">This browser is blocking storage, so nothing will be saved after you close the tab. Try opening this file in Safari or Chrome, and use Export backup often.</p>`:"")+body+
+  `<p class="note">Everything is stored in this browser on this Mac. Always open this file in the same browser, and use Export backup now and then. Clearing the browser's site data erases it.</p>`;
+}
+
+function piecesHTML(){
+  const ql=query.toLowerCase();
+  const list=pieces.filter(p=>{
+    if(stageFilter==="In kiln"){if(!activeFiringOf(p.id))return false;}
+    else if(stageFilter!=="All"&&p.stage!==stageFilter)return false;
+    return !ql||searchText(p).includes(ql);
+  }).sort((a,b)=>(b.made||"").localeCompare(a.made||""));
+  const chips=["All",...STAGES,"In kiln"].map(s=>`<button class="chip" data-stage="${esc(s)}" aria-pressed="${stageFilter===s}">${esc(s)}</button>`).join("");
+  const cards=list.map(p=>{
+    const i=STAGES.indexOf(p.stage);
+    const bar=STAGES.map((s,k)=>`<i class="${k<i?"on":k===i?"cur":""}"></i>`).join("");
+    const c=coverOf(p);
+    const img=c?`<img src="${c}" alt="${esc(p.name)}">`:vessel;
+    const af=activeFiringOf(p.id);
+    const st=p.stage+(p.status==="Given away"?", given away":"")+(af?", in "+af.type.toLowerCase()+" firing":"");
+    const on=selected.has(p.id);
+    return `<button class="card${on?" sel":""}" data-piece="${p.id}">${selecting?`<span class="tick" aria-hidden="true">${on?"✓":""}</span>`:""}<div class="thumb">${img}</div><div class="body"><h3>${esc(p.name||"Untitled")}</h3><div class="meta">${esc([p.clay,p.form].filter(Boolean).join(", "))||"&nbsp;"}</div><div class="kiln" aria-hidden="true">${bar}</div><div class="stage">${esc(st)}</div></div></button>`;
+  }).join("");
+  const bar=selecting?`<div class="selbar"><strong>${selected.size} selected</strong><span class="meta">Click pieces to select them.</span><div class="spacer"></div><button class="btn primary" id="toFiring" ${selected.size?"":"disabled"}>Add to firing…</button><button class="btn" id="selClear">Done</button></div>`:"";
+  return `<div class="toolbar"><input type="search" id="q" placeholder="Search pieces" value="${esc(query)}" aria-label="Search pieces"><div class="chips">${chips}</div><div class="spacer"></div>${selecting?"":`<button class="btn" id="selBtn">Select</button>`}<button class="btn primary" id="addPiece">Add piece</button></div>`+
+    (list.length?`<div class="grid">${cards}</div>`:`<div class="empty">${pieces.length?"No pieces match.":"No pieces yet. Add your first one."}</div>`)+bar;
+}
+
+function firingsHTML(){
+  const list=[...firings].sort((a,b)=>(b.date||"").localeCompare(a.date||""));
+  const rows=list.map(f=>{
+    const rem=remaining(f).length;
+    return `<button class="row" data-firing="${f.id}"><span>${esc(f.date)}</span><span class="cone">${f.cone?"Cone "+esc(f.cone):""}</span><span><strong>${esc(f.type)}</strong>${f.kiln?" in "+esc(f.kiln):""}${isOpen(f)?`<span class="tag">in progress</span>`:""}<br><span class="meta">${esc((f.result||"").slice(0,110))}</span></span><span class="meta cnt">${isOpen(f)?rem+" to find":f.pieceIds.length+" piece"+(f.pieceIds.length===1?"":"s")}</span></button>`;
+  }).join("");
+  return `<div class="toolbar"><div class="spacer"></div><button class="btn primary" id="addFiring">Log firing</button></div>`+
+    (list.length?`<div class="rows">${rows}</div>`:`<div class="empty">No firings logged yet.</div>`);
+}
+
+function checklistHTML(){
+  const ql=checkQ.toLowerCase();
+  const open=firings.filter(isOpen).sort((a,b)=>(b.date||"").localeCompare(a.date||""));
+  const banner=lastFound?`<div class="banner"><span>Marked <strong>${esc(lastFound.name)}</strong> as found.</span><button class="btn" id="undoFound">Undo</button></div>`:"";
+  const groups=open.map(f=>{
+    const items=f.pieceIds.map(id=>pieces.find(p=>p.id===id)).filter(Boolean).filter(p=>!ql||searchText(p).includes(ql));
+    const todo=items.filter(p=>!f.collected[p.id]),done=items.filter(p=>f.collected[p.id]);
+    if(!todo.length&&!done.length)return "";
+    const item=(p,on)=>{const c=coverOf(p);return `<label class="ck"><input type="checkbox" data-found="${f.id}|${p.id}" ${on?"checked":""}>${c?`<img src="${c}" alt="">`:`<span class="noimg"></span>`}<span><strong>${esc(p.name)}</strong> <span class="meta">${esc([p.form,p.clay].filter(Boolean).join(", "))}</span><br><span class="look">${esc(lookOf(p))||"No glazes recorded"}</span></span></label>`;};
+    return `<section class="grp"><h3>${esc(f.type)} firing${f.cone?", cone "+esc(f.cone):""}</h3><div class="meta">${esc(f.date)}${f.kiln?", "+esc(f.kiln):""}${f.shelf?`. Look on: <strong>${esc(f.shelf)}</strong>`:""}. ${remaining(f).length} left to find.</div>${todo.map(p=>item(p,false)).join("")||`<div class="meta" style="padding:8px 0">Nothing left to find here.</div>`}${done.length?`<details><summary>Found (${done.length})</summary>${done.map(p=>item(p,true)).join("")}</details>`:""}</section>`;
+  }).join("");
+  return `<div class="toolbar"><input type="search" id="cq" placeholder="Search the checklist" value="${esc(checkQ)}" aria-label="Search the checklist"><div class="spacer"></div><span class="meta">Tick a piece when you find it. It leaves the list and moves to the next stage.</span></div>`+banner+
+    (groups||`<div class="empty">${open.length?"No pieces match.":"Nothing in the kiln right now. Log a firing and add pieces to it."}</div>`);
+}
+
+/* ---------- finding pieces on the checklist ---------- */
+async function setFound(fid,pid,on){
+  const f=firings.find(x=>x.id===fid),p=pieces.find(x=>x.id===pid);
+  if(!f||!p)return;
+  if(on){
+    f.collected[pid]=today();
+    const target=f.type==="Bisque"?"Bisqued":"Finished";
+    if(STAGES.indexOf(p.stage)<STAGES.indexOf(target)){
+      p.stages.push({name:target,date:today(),location:p.location||"",auto:true,fid,prev:p.stage});
+      p.stage=target;
+    }
+    const filled=[];
+    if(f.type==="Bisque"){if(!p.bisqueCone&&f.cone){p.bisqueCone=f.cone;filled.push("bisqueCone");}}
+    else{
+      if(!p.glazeCone&&f.cone){p.glazeCone=f.cone;filled.push("glazeCone");}
+      if(!p.atmosphere&&["Oxidation","Reduction","Soda"].includes(f.type)){p.atmosphere=f.type;filled.push("atmosphere");}
+    }
+    f.filled[pid]=filled;
+    if(!remaining(f).length)f.open=false;
+    lastFound={fid,pid,name:p.name};
+  }else{
+    delete f.collected[pid];
+    const idx=p.stages.map((s,i)=>s.auto&&s.fid===fid?i:-1).filter(i=>i>=0).pop();
+    if(idx!==undefined){const s=p.stages[idx];if(s.prev)p.stage=s.prev;p.stages.splice(idx,1);}
+    for(const k of (f.filled[pid]||[]))p[k]="";
+    delete f.filled[pid];
+    f.open=true;lastFound=null;
+  }
+  await save("pieces",p);await save("firings",f);render();
+}
+
+/* ---------- photos ---------- */
+function shrink(file,max=1400){return new Promise(res=>{
+  const img=new Image(),u=URL.createObjectURL(file);
+  img.onload=()=>{const k=Math.min(1,max/Math.max(img.width,img.height));const c=document.createElement("canvas");
+    c.width=Math.round(img.width*k);c.height=Math.round(img.height*k);c.getContext("2d").drawImage(img,0,0,c.width,c.height);
+    URL.revokeObjectURL(u);res(c.toDataURL("image/jpeg",.82));};
+  img.onerror=()=>{URL.revokeObjectURL(u);res(null);};
+  img.src=u;
+});}
+
+function openDlg(html){const d=$("#dlg");d.onpaste=null;d.innerHTML=html;return d;}
+
+/* ---------- piece editor ---------- */
+function editPiece(id){
+  const existing=pieces.find(p=>p.id===id);
+  const p=existing?{...existing,photos:[...(existing.photos||[])]}:{id:uid(),name:"",clay:"",form:"",method:"",made:today(),stage:STAGES[0],stages:[],glazes:[],notes:"",photos:[],cover:0,status:"Keeping",location:"",bisqueCone:"",glazeCone:"",atmosphere:"",weightLb:"",volumeOz:"",h:"",w:"",l:""};
+  if(typeof p.cover!=="number")p.cover=0;
+  let H=(p.stages||[]).map(s=>({...s}));
+  if(!existing)H=[{name:STAGES[0],date:p.made,location:""}];
+  let G=(p.glazes||[]).map(g=>({...g}));
+  let dragIdx=null;
+  const fl=existing?pieceFirings(p.id):[];
+  const optsPlain=(list,cur,blank)=>(blank?`<option value=""></option>`:"")+list.map(v=>`<option${v===cur?" selected":""}>${esc(v)}</option>`).join("");
+  const stageList=STAGES.includes(p.stage)?STAGES:[...STAGES,p.stage];
+  const d=openDlg(`<div class="dlg">
+    <h2>${existing?"Edit piece":"New piece"}</h2>
+    <div class="two"><label>Name<input id="f_name" value="${esc(p.name)}"></label>
+      <label>Stage<select id="f_stage">${optsPlain(stageList,p.stage)}</select></label></div>
+    <div class="three">${pickHTML("f_clay","clay",p.clay,"Clay body")}${pickHTML("f_form","form",p.form,"Form")}${pickHTML("f_method","method",p.method,"Forming method")}</div>
+    <div class="two"><label>Date made<input type="date" id="f_made" value="${esc(p.made)}"></label>
+      <div class="links meta" style="align-self:end;padding-bottom:8px"><a href="#" id="dfClay" target="_blank" rel="noopener">Look up this clay on Digitalfire</a></div></div>
+    <div class="four"><label>Bisque cone<select id="f_bc">${optsPlain(CONES,p.bisqueCone,true)}</select></label>
+      <label>Glaze cone<select id="f_gc">${optsPlain(CONES,p.glazeCone,true)}</select></label>
+      <label>Atmosphere<select id="f_atm">${optsPlain(["Oxidation","Reduction","Soda","Other"],p.atmosphere,true)}</select></label>
+      <label>Status<select id="f_status">${optsPlain(["Keeping","Given away","Sold"],p.status)}</select></label></div>
+    <div class="four"><label>Weight (lb)<input type="number" step="0.01" min="0" id="f_wt" value="${esc(p.weightLb)}"></label>
+      <label>Volume (oz)<input type="number" step="0.1" min="0" id="f_vol" value="${esc(p.volumeOz)}"></label>
+      <label>Height (in)<input type="number" step="0.01" min="0" id="f_h" value="${esc(p.h)}"></label>
+      <label>Width (in)<input type="number" step="0.01" min="0" id="f_w" value="${esc(p.w)}"></label></div>
+    <div class="four"><label>Length (in)<input type="number" step="0.01" min="0" id="f_l" value="${esc(p.l)}"></label>
+      <div style="grid-column:span 3">${pickHTML("f_loc","location",p.location,"Where it is now")}</div></div>
+
+    <h4>Glazes, oxides, slips, underglazes, and stains</h4>
+    <div id="glz"></div>
+    <div><button type="button" class="btn" id="addGlaze">+ Add a coating</button></div>
+
+    <label>Notes<textarea id="f_notes" style="min-height:110px">${esc(p.notes)}</textarea></label>
+
+    <h4>Photos</h4>
+    <div class="meta">Drag to reorder. Star = the cover shown on the piece's card.</div>
+    <div class="photos" id="photos"></div>
+    <div class="dz" id="dz">Drag photos here from the Photos app, Finder, or a browser window, or paste with ⌘V.
+      <button type="button" class="btn" id="pickFiles" style="margin-left:8px">Choose files…</button>
+      <input type="file" id="f_photos" accept="image/*" multiple hidden></div>
+
+    <h4>Stage dates</h4>
+    <div id="hist"></div>
+    <div><button type="button" class="btn" id="addStage">+ Add a stage date</button></div>
+    ${fl.length?`<div class="meta">Fired in: ${fl.map(f=>esc(f.date+" "+f.type+(f.cone?" cone "+f.cone:""))).join("; ")}</div>`:""}
+    <div class="actions"><button class="btn primary" id="ok">Save</button><button class="btn" id="cancel">Cancel</button><div class="spacer"></div>${existing?`<button class="btn danger" id="del">Delete</button>`:""}</div>
+  </div>`);
+
+  /* glaze rows */
+  const updateLink=row=>{
+    const a=row.querySelector(".g_link"),kind=row.querySelector(".g_kind").value,name=dlgSelVal(row.querySelector(".g_name"));
+    if(kind==="Glaze"&&name){const u=lists.glazeUrls[name];a.href=u||gzUrl(name);a.textContent="Glazy";a.title=u?"Open this glaze's Glazy page":"Search Glazy for this glaze";a.hidden=false;}
+    else{a.hidden=true;a.removeAttribute("href");}
+  };
+  const readG=keepEmpty=>[...document.querySelectorAll("#glz .grow[data-i]")].map(r=>({kind:r.querySelector(".g_kind").value,name:dlgSelVal(r.querySelector(".g_name")),area:dlgSelVal(r.querySelector(".g_area")),method:dlgSelVal(r.querySelector(".g_method")),note:r.querySelector(".g_note").value.trim()})).filter(g=>keepEmpty||g.name);
+  const drawG=()=>{
+    $("#glz").innerHTML=(G.length?`<div class="grow gh"><span>Type</span><span>Name</span><span>Where</span><span>How</span><span>Notes</span><span></span><span></span></div>`:`<div class="meta">None yet.</div>`)+G.map((g,i)=>{
+      const key=KEYOF[g.kind]||"glaze";
+      return `<div class="grow" data-i="${i}">
+        <select class="g_kind" aria-label="Type">${optsPlain(KINDS,g.kind||"Glaze")}</select>
+        <div class="pick"><select class="g_name" data-key="${key}" data-blank="1" data-prev="${esc(g.name)}" aria-label="Name">${optsHTML(key,g.name,{blank:true})}</select><button type="button" class="btn add" data-add title="Add a new one to this list">+</button></div>
+        <select class="g_area" data-key="area" data-blank="1" data-addopt="1" data-prev="${esc(g.area)}" aria-label="Where on the piece">${optsHTML("area",g.area,{blank:true,add:true})}</select>
+        <select class="g_method" data-key="application" data-blank="1" data-addopt="1" data-prev="${esc(g.method)}" aria-label="How applied">${optsHTML("application",g.method,{blank:true,add:true})}</select>
+        <input class="g_note" value="${esc(g.note)}" placeholder="Coats, etc." aria-label="Notes">
+        <a class="g_link" target="_blank" rel="noopener" hidden></a>
+        <button type="button" class="x" data-grm aria-label="Remove">×</button></div>`;
+    }).join("");
+    document.querySelectorAll("#glz .grow[data-i]").forEach(updateLink);
+  };
+  $("#glz").addEventListener("change",e=>{
+    const row=e.target.closest(".grow[data-i]");if(!row)return;
+    if(e.target.classList.contains("g_kind")){
+      const s=row.querySelector(".g_name");s.dataset.key=KEYOF[e.target.value];fillSel(s,"");
+    }
+    updateLink(row);
+  });
+  $("#glz").addEventListener("click",e=>{
+    const b=e.target.closest("[data-grm]");
+    if(b){G=readG(true);G.splice(+b.closest(".grow").dataset.i,1);drawG();}
+  });
+  $("#addGlaze").onclick=()=>{G=readG(true);G.push({kind:"Glaze",name:"",area:"",method:"",note:""});drawG();};
+
+  /* stage history rows */
+  const readH=()=>[...document.querySelectorAll("#hist .hrow[data-i]")].map(r=>Object.assign({},H[+r.dataset.i],{name:r.querySelector(".h_stage").value,date:r.querySelector(".h_date").value,location:dlgSelVal(r.querySelector(".h_loc"))}));
+  const drawH=()=>{
+    $("#hist").innerHTML=H.length?H.map((s,i)=>`<div class="hrow" data-i="${i}">
+      <select class="h_stage" aria-label="Stage">${optsPlain(STAGES.includes(s.name)?STAGES:[...STAGES,s.name],s.name)}</select>
+      <input type="date" class="h_date" value="${esc(s.date)}" aria-label="Date">
+      <select class="h_loc" data-key="location" data-blank="1" data-addopt="1" data-prev="${esc(s.location)}" aria-label="Location">${optsHTML("location",s.location||"",{blank:true,add:true})}</select>
+      <button type="button" class="x" data-hrm aria-label="Remove">×</button></div>`).join(""):`<div class="meta">No stage dates yet.</div>`;
+  };
+  $("#hist").addEventListener("click",e=>{const b=e.target.closest("[data-hrm]");if(b){H=readH();H.splice(+b.closest(".hrow").dataset.i,1);drawH();}});
+  $("#addStage").onclick=()=>{H=readH();const last=H.length?STAGES.indexOf(H[H.length-1].name):-1;H.push({name:STAGES[Math.min(last+1,STAGES.length-1)],date:today(),location:""});drawH();};
+  $("#f_stage").addEventListener("change",e=>{
+    H=readH();H.push({name:e.target.value,date:today(),location:dlgSelVal($("#f_loc"))});drawH();
+  });
+
+  /* photos */
+  const movePhoto=(from,to)=>{
+    if(from===to)return;
+    const [m]=p.photos.splice(from,1);p.photos.splice(to,0,m);
+    if(p.cover===from)p.cover=to;else if(from<p.cover&&to>=p.cover)p.cover--;else if(from>p.cover&&to<=p.cover)p.cover++;
+  };
+  const drawPhotos=()=>{
+    $("#photos").innerHTML=p.photos.map((s,i)=>`<div class="ph${i===p.cover?" cover":""}" draggable="true" data-i="${i}">
+      <img src="${s}" alt="Photo ${i+1}" draggable="false" data-big="${i}">
+      ${i===p.cover?`<span class="cv">Cover</span>`:""}
+      <button type="button" class="rm" data-rm="${i}" aria-label="Remove photo ${i+1}">×</button>
+      <div class="pbar"><button type="button" data-mv="-1" aria-label="Move earlier">‹</button><button type="button" data-star="${i}" aria-label="Use as cover" title="Use as cover">${i===p.cover?"★":"☆"}</button><button type="button" data-mv="1" aria-label="Move later">›</button></div></div>`).join("")||`<span class="meta">No photos yet.</span>`;
+  };
+  const ph=$("#photos");
+  ph.addEventListener("click",e=>{
+    const t=e.target;
+    const rm=t.closest("[data-rm]");
+    if(rm){const i=+rm.dataset.rm;p.photos.splice(i,1);if(i<p.cover)p.cover--;else if(i===p.cover)p.cover=0;if(p.cover>=p.photos.length)p.cover=0;drawPhotos();return;}
+    const st=t.closest("[data-star]");if(st){p.cover=+st.dataset.star;drawPhotos();return;}
+    const mv=t.closest("[data-mv]");if(mv){const i=+mv.closest(".ph").dataset.i,j=i+ +mv.dataset.mv;if(j>=0&&j<p.photos.length){movePhoto(i,j);drawPhotos();}return;}
+    const big=t.closest("[data-big]");if(big){$("#lbImg").src=p.photos[+big.dataset.big];$("#lb").showModal();}
+  });
+  ph.addEventListener("dragstart",e=>{const t=e.target.closest(".ph");if(!t)return;dragIdx=+t.dataset.i;e.dataTransfer.effectAllowed="move";e.dataTransfer.setData("text/plain","kilnbook-photo");});
+  ph.addEventListener("dragend",()=>{dragIdx=null;document.querySelectorAll(".ph.over").forEach(x=>x.classList.remove("over"));});
+  ph.addEventListener("dragover",e=>{if(dragIdx===null)return;e.preventDefault();const t=e.target.closest(".ph");document.querySelectorAll(".ph.over").forEach(x=>x.classList.remove("over"));if(t)t.classList.add("over");});
+  ph.addEventListener("drop",e=>{
+    if(dragIdx===null)return;
+    e.preventDefault();e.stopPropagation();
+    const t=e.target.closest(".ph");
+    if(t){movePhoto(dragIdx,+t.dataset.i);}
+    dragIdx=null;drawPhotos();
+  });
+  const addFiles=async files=>{
+    let bad=0;
+    for(const f of files){if(!f.type.startsWith("image/")&&!/\.(heic|heif|jpe?g|png)$/i.test(f.name)){bad++;continue;}const s=await shrink(f);if(s)p.photos.push(s);else bad++;}
+    drawPhotos();
+    if(bad)alert(bad+" file"+(bad===1?"":"s")+" couldn't be read as a photo. If these are iPhone (HEIC) photos, Safari handles them best.");
+  };
+  const dz=$("#dz");
+  dz.addEventListener("dragover",e=>{if(dragIdx!==null)return;e.preventDefault();dz.classList.add("over");});
+  dz.addEventListener("dragleave",()=>dz.classList.remove("over"));
+  dz.addEventListener("drop",e=>{if(dragIdx!==null)return;e.preventDefault();dz.classList.remove("over");if(e.dataTransfer.files.length)addFiles(e.dataTransfer.files);});
+  ph.addEventListener("dragover",e=>{if(dragIdx===null)e.preventDefault();});
+  ph.addEventListener("drop",e=>{if(dragIdx===null&&e.dataTransfer.files.length){e.preventDefault();addFiles(e.dataTransfer.files);}});
+  $("#pickFiles").onclick=()=>$("#f_photos").click();
+  $("#f_photos").addEventListener("change",async e=>{await addFiles(e.target.files);e.target.value="";});
+  d.onpaste=e=>{const fs=[...(e.clipboardData&&e.clipboardData.files||[])].filter(f=>f.type.startsWith("image/"));if(fs.length){e.preventDefault();addFiles(fs);}};
+
+  drawG();drawH();drawPhotos();
+  $("#dfClay").addEventListener("click",e=>{e.currentTarget.href=dfUrl($("#f_clay").value||"clay body");});
+  $("#cancel").onclick=()=>d.close();
+  const num=sel=>{const v=$(sel).value;return v===""?"":+v;};
+  $("#ok").onclick=async()=>{
+    const name=$("#f_name").value.trim();
+    if(!name){$("#f_name").focus();return;}
+    Object.assign(p,{name,stage:$("#f_stage").value,clay:dlgSelVal($("#f_clay")),form:dlgSelVal($("#f_form")),method:dlgSelVal($("#f_method")),made:$("#f_made").value,
+      bisqueCone:$("#f_bc").value,glazeCone:$("#f_gc").value,atmosphere:$("#f_atm").value,status:$("#f_status").value,location:dlgSelVal($("#f_loc")),
+      weightLb:num("#f_wt"),volumeOz:num("#f_vol"),h:num("#f_h"),w:num("#f_w"),l:num("#f_l"),glazes:readG(false),stages:readH(),notes:$("#f_notes").value});
+    try{await save("pieces",p);}catch(e){alert("Could not save: "+e.message);return;}
+    const i=pieces.findIndex(x=>x.id===p.id);if(i>=0)pieces[i]=p;else pieces.push(p);
+    d.close();render();
+  };
+  if(existing)$("#del").onclick=async()=>{
+    if(!confirm("Delete this piece and its photos? This cannot be undone."))return;
+    await remove("pieces",p.id);pieces=pieces.filter(x=>x.id!==p.id);
+    for(const f of firings){if(f.pieceIds.includes(p.id)){f.pieceIds=f.pieceIds.filter(x=>x!==p.id);delete f.collected[p.id];await save("firings",f);}}
+    selected.delete(p.id);d.close();render();
+  };
+  d.showModal();
+}
+
+/* ---------- firing editor ---------- */
+function shelfFor(kind){
+  if(kind==="Bisque"||kind==="Other")return "";
+  return (lists.location.find(l=>/shelf/i.test(l)&&l.toLowerCase().includes(kind.toLowerCase()))||"");
+}
+function editFiring(id,preset){
+  const existing=firings.find(x=>x.id===id);
+  const type0=(preset&&preset.type)||"Bisque";
+  const f=existing?{...existing,collected:{...existing.collected},filled:{...existing.filled}}:{id:uid(),date:today(),type:type0,cone:type0==="Bisque"?"05":"6",kiln:"",shelf:shelfFor(type0),schedule:"",result:"",pieceIds:[],collected:{},filled:{},open:true};
+  if(!existing&&preset&&preset.pieceIds)f.pieceIds=[...preset.pieceIds];
+  const sel=new Set(f.pieceIds);
+  let readyOnly=!existing,coneTouched=!!existing,shelfTouched=!!existing;
+  const optsPlain=(list,cur)=>list.map(v=>`<option${v===cur?" selected":""}>${esc(v)}</option>`).join("");
+  const d=openDlg(`<div class="dlg">
+    <h2>${existing?"Edit firing":"Log firing"}</h2>
+    <div class="three"><label>Date<input type="date" id="g_date" value="${esc(f.date)}"></label>
+      <label>Kind of firing<select id="g_type">${optsPlain(FIRE_KINDS,f.type)}</select></label>
+      <label>Cone<select id="g_cone">${optsPlain(CONES,f.cone)}</select></label></div>
+    <div class="two"><label>Kiln<input id="g_kiln" value="${esc(f.kiln)}" placeholder="e.g. studio electric, soda kiln"></label>
+      ${pickHTML("g_shelf","location",f.shelf,"Where to look for the pieces afterward")}</div>
+    <div class="links meta"><a href="#" id="dfCone" target="_blank" rel="noopener">Look up this cone on Digitalfire</a></div>
+    <label>Schedule (ramps, holds, anything you want to repeat)<textarea id="g_sched" placeholder="e.g. 150°F/hr to 1000, 300°F/hr to cone 04, 10 min hold">${esc(f.schedule)}</textarea></label>
+    <label>Results<textarea id="g_res" placeholder="What came out? Cone pack, crawling, pinholes, color…">${esc(f.result)}</textarea></label>
+    <label style="display:flex;gap:8px;align-items:center;color:var(--ink)"><input type="checkbox" id="g_open" style="width:auto" ${f.open===true?"checked":""}> Still in progress: show unfound pieces on the Checklist</label>
+    <div>
+      <div class="meta" style="margin-bottom:6px">Pieces in this firing: <strong id="pk_n"></strong></div>
+      <div class="toolbar" style="margin-bottom:8px"><input type="search" id="pk_q" placeholder="Search pieces" aria-label="Search pieces" style="max-width:220px"><button type="button" class="chip" id="pk_ready" aria-pressed="${readyOnly}">Ready for this firing only</button></div>
+      <div class="checks" id="pk_list"></div>
+    </div>
+    <div class="actions"><button class="btn primary" id="ok">Save</button><button class="btn" id="cancel">Cancel</button><div class="spacer"></div>${existing?`<button class="btn danger" id="del">Delete</button>`:""}</div>
+  </div>`);
+  const ready=p=>$("#g_type").value==="Bisque"?["Formed","Trimmed"].includes(p.stage):p.stage==="Glazed";
+  const drawPicker=()=>{
+    const ql=$("#pk_q").value.toLowerCase();
+    const list=pieces.filter(p=>sel.has(p.id)||!readyOnly||ready(p)).filter(p=>sel.has(p.id)&&!ql||searchText(p).includes(ql)).sort((a,b)=>(sel.has(b.id)-sel.has(a.id))||(b.made||"").localeCompare(a.made||""));
+    $("#pk_list").innerHTML=list.length?list.map(p=>{
+      const other=!sel.has(p.id)?activeFiringOf(p.id,f.id):null;
+      const c=coverOf(p);
+      return `<label class="pk${other?" dis":""}"><input type="checkbox" data-pid="${p.id}" ${sel.has(p.id)?"checked":""} ${other?"disabled":""}>${c?`<img src="${c}" alt="">`:`<span class="noimg"></span>`}<span>${esc(p.name)} <span class="meta">${esc([p.form,p.clay].filter(Boolean).join(", "))}</span></span><span class="meta">${other?"in "+esc(other.type.toLowerCase())+" firing":esc(p.stage)}</span></label>`;
+    }).join(""):`<span class="meta">${readyOnly?"No pieces are at the right stage. Turn off “Ready for this firing only” to see all.":"No pieces."}</span>`;
+    $("#pk_n").textContent=sel.size;
+  };
+  $("#pk_list").addEventListener("change",e=>{const c=e.target.closest("[data-pid]");if(!c)return;if(c.checked)sel.add(c.dataset.pid);else sel.delete(c.dataset.pid);$("#pk_n").textContent=sel.size;});
+  $("#pk_q").addEventListener("input",drawPicker);
+  $("#pk_ready").onclick=e=>{readyOnly=!readyOnly;e.currentTarget.setAttribute("aria-pressed",readyOnly);drawPicker();};
+  $("#g_cone").addEventListener("change",()=>{coneTouched=true;});
+  $("#g_shelf").addEventListener("change",()=>{shelfTouched=true;});
+  $("#g_type").addEventListener("change",e=>{
+    const t=e.target.value;
+    if(!coneTouched)$("#g_cone").value=t==="Bisque"?"05":"6";
+    if(!shelfTouched){const s=shelfFor(t);fillSel($("#g_shelf"),s);}
+    drawPicker();
+  });
+  $("#dfCone").addEventListener("click",e=>{e.currentTarget.href=dfUrl("Orton cone "+$("#g_cone").value);});
+  $("#cancel").onclick=()=>d.close();
+  $("#ok").onclick=async()=>{
+    Object.assign(f,{date:$("#g_date").value,type:$("#g_type").value,cone:$("#g_cone").value,kiln:$("#g_kiln").value.trim(),shelf:dlgSelVal($("#g_shelf")),schedule:$("#g_sched").value,result:$("#g_res").value,open:$("#g_open").checked,pieceIds:[...sel]});
+    for(const k of Object.keys(f.collected))if(!sel.has(k)){delete f.collected[k];delete f.filled[k];}
+    try{await save("firings",f);}catch(e){alert("Could not save: "+e.message);return;}
+    const i=firings.findIndex(x=>x.id===f.id);if(i>=0)firings[i]=f;else firings.push(f);
+    if(preset){selected.clear();selecting=false;}
+    d.close();render();
+  };
+  if(existing)$("#del").onclick=async()=>{
+    if(!confirm("Delete this firing log? Pieces stay as they are. This cannot be undone."))return;
+    await remove("firings",f.id);firings=firings.filter(x=>x.id!==f.id);d.close();render();
+  };
+  drawPicker();
+  d.showModal();
+}
+
+/* ---------- add selected pieces to a firing ---------- */
+function pickFiring(){
+  const ids=[...selected].filter(id=>pieces.some(p=>p.id===id));
+  const openF=firings.filter(isOpen).sort((a,b)=>(b.date||"").localeCompare(a.date||""));
+  const d=openDlg(`<div class="dlg"><h2>Add ${ids.length} piece${ids.length===1?"":"s"} to a firing</h2>
+    ${openF.length?`<div class="rows">${openF.map(f=>`<button class="row" style="grid-template-columns:110px 1fr auto" data-pf="${f.id}"><span>${esc(f.date)}</span><span><strong>${esc(f.type)}</strong>${f.cone?", cone "+esc(f.cone):""}${f.kiln?", "+esc(f.kiln):""}</span><span class="meta">${remaining(f).length} waiting</span></button>`).join("")}</div>`:`<div class="meta">No firings in progress.</div>`}
+    <div class="actions"><button class="btn primary" id="newF">New firing…</button><button class="btn" id="cancel">Cancel</button></div></div>`);
+  $("#cancel").onclick=()=>d.close();
+  $("#newF").onclick=()=>{
+    const stages=ids.map(id=>pieces.find(p=>p.id===id).stage);
+    const type=stages.every(s=>s==="Formed"||s==="Trimmed")?"Bisque":"Oxidation";
+    d.close();editFiring(undefined,{pieceIds:ids,type});
+  };
+  d.querySelector(".rows")&&d.querySelector(".rows").addEventListener("click",async e=>{
+    const b=e.target.closest("[data-pf]");if(!b)return;
+    const f=firings.find(x=>x.id===b.dataset.pf);let skipped=0;
+    for(const id of ids){if(f.pieceIds.includes(id))continue;if(activeFiringOf(id,f.id)){skipped++;continue;}f.pieceIds.push(id);}
+    await save("firings",f);
+    selected.clear();selecting=false;d.close();view="check";render();
+    if(skipped)alert(skipped+" piece"+(skipped===1?" is":"s are")+" already in another firing, so "+(skipped===1?"it was":"they were")+" skipped.");
+  });
+  d.showModal();
+}
+
+/* ---------- managing lists ---------- */
+function usedIn(key,p){
+  if(["clay","form","method"].includes(key))return p[key]?[p[key]]:[];
+  if(key==="location")return [p.location,...(p.stages||[]).map(s=>s.location)].filter(Boolean);
+  if(key==="area")return (p.glazes||[]).map(g=>g.area).filter(Boolean);
+  if(key==="application")return (p.glazes||[]).map(g=>g.method).filter(Boolean);
+  return (p.glazes||[]).filter(g=>g.kind===KINDOF[key]).map(g=>g.name).filter(Boolean);
+}
+function replaceIn(key,p,o,n){
+  let ch=false;
+  if(["clay","form","method"].includes(key)){if(p[key]===o){p[key]=n;ch=true;}}
+  else if(key==="location"){if(p.location===o){p.location=n;ch=true;}(p.stages||[]).forEach(s=>{if(s.location===o){s.location=n;ch=true;}});}
+  else if(key==="area"){(p.glazes||[]).forEach(g=>{if(g.area===o){g.area=n;ch=true;}});}
+  else if(key==="application"){(p.glazes||[]).forEach(g=>{if(g.method===o){g.method=n;ch=true;}});}
+  else{(p.glazes||[]).forEach(g=>{if(g.kind===KINDOF[key]&&g.name===o){g.name=n;ch=true;}});}
+  return ch;
+}
+async function renameEverywhere(key,o,n){
+  const L=lists[key],i=L.indexOf(o);
+  if(i>=0){if(L.some((x,j)=>j!==i&&x.toLowerCase()===n.toLowerCase()))L.splice(i,1);else L[i]=n;}
+  else if(!L.some(x=>x.toLowerCase()===n.toLowerCase()))L.push(n);
+  if(key==="glaze"&&lists.glazeUrls[o]){if(!lists.glazeUrls[n])lists.glazeUrls[n]=lists.glazeUrls[o];delete lists.glazeUrls[o];}
+  for(const p of pieces){if(replaceIn(key,p,o,n))await save("pieces",p);}
+  if(key==="location"){for(const f of firings){if(f.shelf===o){f.shelf=n;await save("firings",f);}}}
+  await saveLists();
+}
+function manageLists(key){
+  key=key||"clay";
+  const L=[...lists[key]].sort(cmp);
+  const used=new Map();
+  pieces.forEach(p=>usedIn(key,p).forEach(v=>used.set(v,(used.get(v)||0)+1)));
+  const unlisted=[...used.keys()].filter(v=>!lists[key].includes(v)).sort(cmp);
+  const glz=key==="glaze";
+  const d=openDlg(`<div class="dlg" id="mgr"><h2>Lists</h2>
+    <div class="two"><label>Which list<select id="mgrKey">${LISTDEFS.map(([k,l])=>`<option value="${k}" ${k===key?"selected":""}>${l}</option>`).join("")}</select></label>
+      <label>Add an entry<div class="pick"><input id="mgrNew" placeholder="Type a name"><button class="btn" type="button" id="mgrAdd">Add</button></div></label></div>
+    ${glz?`<div class="meta">Paste a Glazy link for a glaze once and every piece using it gets the link. Use “Find” to search Glazy.</div>`:""}
+    <div>${L.length?L.map(n=>`<div class="mrow${glz?" glz":""}"><span>${esc(n)}</span><span class="meta">${used.get(n)||0} used</span>${glz?`<input class="murl" data-n="${esc(n)}" value="${esc(lists.glazeUrls[n]||"")}" placeholder="Glazy link" aria-label="Glazy link for ${esc(n)}">`:""}<span>${glz?`<a class="g_link" href="${esc(gzUrl(n))}" target="_blank" rel="noopener">Find</a> `:""}<button class="btn" data-ren="${esc(n)}">Rename</button></span><button class="btn danger" data-del="${esc(n)}">Remove</button></div>`).join(""):`<div class="meta">This list is empty.</div>`}</div>
+    ${unlisted.length?`<div><div class="meta" style="margin-bottom:6px">Used on your pieces but not in this list (click to add):</div><div class="chips">${unlisted.map(n=>`<button class="chip" data-addu="${esc(n)}">+ ${esc(n)} (${used.get(n)})</button>`).join("")}</div></div>`:""}
+    <div class="meta">Rename changes the name on every piece that uses it. Remove only takes it off the pick list.</div>
+    <div class="actions"><button class="btn primary" id="mgrClose">Done</button></div></div>`);
+  $("#mgrClose").onclick=()=>{d.close();render();};
+  $("#mgrKey").onchange=e=>manageLists(e.target.value);
+  const add=()=>{const n=$("#mgrNew").value.trim();if(!n)return;if(!lists[key].some(x=>x.toLowerCase()===n.toLowerCase())){lists[key].push(n);saveLists();}manageLists(key);};
+  $("#mgrAdd").onclick=add;
+  $("#mgrNew").addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();add();}});
+  $("#mgr").addEventListener("change",e=>{
+    if(e.target.classList.contains("murl")){const n=e.target.dataset.n,v=e.target.value.trim();if(v)lists.glazeUrls[n]=v;else delete lists.glazeUrls[n];saveLists();}
+  });
+  $("#mgr").addEventListener("click",async e=>{
+    const r=e.target.closest("[data-ren]"),x=e.target.closest("[data-del]"),u=e.target.closest("[data-addu]");
+    if(r){const o=r.dataset.ren;const n=(prompt("New name for “"+o+"”:",o)||"").trim();if(n&&n!==o){await renameEverywhere(key,o,n);manageLists(key);}}
+    if(x){const o=x.dataset.del;if(confirm("Remove “"+o+"” from this list? Pieces that already use it keep it.")){lists[key]=lists[key].filter(v=>v!==o);await saveLists();manageLists(key);}}
+    if(u){lists[key].push(u.dataset.addu);await saveLists();manageLists(key);}
+  });
+  if(!d.open)d.showModal();
+}
+
+/* ---------- events ---------- */
+$("#lb").addEventListener("click",()=>$("#lb").close());
+$("#nav").addEventListener("click",e=>{const b=e.target.closest("[data-view]");if(b){view=b.dataset.view;lastFound=null;render();}});
+$("#main").addEventListener("click",e=>{
+  const c=e.target.closest("[data-piece]");
+  if(c){if(selecting){const id=c.dataset.piece;if(selected.has(id))selected.delete(id);else selected.add(id);render();}else editPiece(c.dataset.piece);return;}
+  const r=e.target.closest("[data-firing]");if(r)return editFiring(r.dataset.firing);
+  const s=e.target.closest("[data-stage]");if(s){stageFilter=s.dataset.stage;return render();}
+  switch(e.target.id){
+    case "addPiece":editPiece();break;
+    case "addFiring":editFiring();break;
+    case "selBtn":selecting=true;render();break;
+    case "selClear":selecting=false;selected.clear();render();break;
+    case "toFiring":pickFiring();break;
+    case "undoFound":if(lastFound)setFound(lastFound.fid,lastFound.pid,false);break;
+  }
+});
+$("#main").addEventListener("change",e=>{
+  const c=e.target.closest("[data-found]");
+  if(c){const [fid,pid]=c.dataset.found.split("|");setFound(fid,pid,c.checked);}
+});
+$("#main").addEventListener("input",e=>{
+  if(e.target.id==="q"||e.target.id==="cq"){
+    const isQ=e.target.id==="q";if(isQ)query=e.target.value;else checkQ=e.target.value;
+    const pos=e.target.selectionStart;render();const q=$(isQ?"#q":"#cq");q.focus();q.setSelectionRange(pos,pos);
+  }
+});
+/* pick-list behaviour shared by every dialog and phone screen */
+function onPickChange(e){
+  const s=e.target;if(s.tagName!=="SELECT"||!s.dataset.key)return;
+  if(s.value==="__add__"){
+    const n=addItem(s.dataset.key);
+    fillSel(s,n||s.dataset.prev||"");refreshKey(s.dataset.key,s);
+  }
+  s.dataset.prev=s.value;
+}
+function onPickClick(e){
+  const b=e.target.closest("[data-add]");if(!b)return;
+  const s=b.closest(".pick").querySelector("select");if(!s)return;
+  const n=addItem(s.dataset.key);
+  if(n){fillSel(s,n);refreshKey(s.dataset.key,s);s.dispatchEvent(new Event("change",{bubbles:true}));}
+}
+for(const el of [$("#dlg"),$("#main")]){el.addEventListener("change",onPickChange);el.addEventListener("click",onPickClick);}
+$("#lookup").addEventListener("click",e=>{
+  const b=e.target.closest("[data-site]");if(!b)return;
+  const t=$("#lq").value.trim();if(!t){$("#lq").focus();return;}
+  window.open(b.dataset.site==="df"?dfUrl(t):gzUrl(t),"_blank","noopener");
+});
+$("#lookup").addEventListener("submit",e=>e.preventDefault());
+$("#listsBtn").onclick=()=>manageLists("clay");
+$("#exportBtn").onclick=()=>sendFile(true,false);
+$("#sendBtn").onclick=()=>sendFile(false,true);
+$("#importBtn").onclick=()=>$("#importFile").click();
+$("#importFile").addEventListener("change",async e=>{const f=e.target.files[0];if(f)await receiveFile(f);e.target.value="";});
+
+/* ---------- syncing between devices ---------- */
+const pending=()=>({p:pieces.filter(x=>x.dirty),f:firings.filter(x=>x.dirty),t:Object.entries(tombstones).filter(([id,x])=>x.dirty)});
+function buildSync(all,stamp){
+  const c=all?{p:pieces,f:firings,t:Object.entries(tombstones)}:pending();
+  const clean=x=>{const y={...x};delete y.dirty;return y;};
+  return {app:"kiln-book",version:4,kind:all?"everything":"changes",exported:new Date(stamp).toISOString(),pieces:c.p.map(clean),firings:c.f.map(clean),tombs:c.t.map(([id,x])=>({id,store:x.store,edited:x.edited})),lists};
+}
+async function markSent(data){
+  for(const [store,arr,sent] of [["pieces",pieces,data.pieces],["firings",firings,data.firings]]){
+    for(const r of sent){const l=arr.find(x=>x.id===r.id);if(l&&l.edited===r.edited&&l.dirty){l.dirty=false;await save(store,l,true);}}
+  }
+  for(const t of data.tombs){if(tombstones[t.id]&&tombstones[t.id].edited===t.edited)tombstones[t.id].dirty=false;}
+  await saveSettings("tombs",tombstones);
+}
+async function sendFile(all,track){
+  const stamp=Date.now(),data=buildSync(all,stamp);
+  if(!all&&!data.pieces.length&&!data.firings.length&&!data.tombs.length){PHONE?flash("Nothing has changed since the last send."):alert("Nothing has changed since the last send.");return false;}
+  const name="kiln-book-"+(all?"everything":"changes")+"-"+today()+".json";
+  const file=new File([JSON.stringify(data)],name,{type:"application/json"});
+  let shared=false;
+  if(navigator.canShare&&matchMedia("(pointer:coarse)").matches&&navigator.canShare({files:[file]})){
+    try{await navigator.share({files:[file],title:"Kiln Book"});shared=true;}catch(e){if(e&&e.name==="AbortError")return false;}
+  }
+  if(!shared){const a=document.createElement("a");a.href=URL.createObjectURL(file);a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),4000);}
+  if(track){await markSent(data);syncState.lastSent=stamp;await saveSettings("sync",syncState);}
+  if(PHONE)render();
+  return true;
+}
+async function mergeIn(data){
+  let up=0,skip=0,del=0;
+  if(data.lists){mergeLists(lists,data.lists);await saveLists();}
+  for(const t of data.tombs||[]){
+    if(!tombstones[t.id]||tombstones[t.id].edited<t.edited)tombstones[t.id]={store:t.store,edited:t.edited,dirty:false};
+    const arr=t.store==="firings"?firings:pieces,i=arr.findIndex(x=>x.id===t.id);
+    if(i>=0&&(arr[i].edited||0)<=t.edited){if(!memoryOnly)await tx(t.store,"readwrite",s=>s.delete(t.id));arr.splice(i,1);del++;}
+  }
+  await saveSettings("tombs",tombstones);
+  for(const [store,arr,norm,incoming] of [["pieces",pieces,normalizePiece,data.pieces],["firings",firings,normalizeFiring,data.firings]]){
+    for(const r of incoming){
+      norm(r);
+      const tb=tombstones[r.id];
+      if(tb&&tb.edited>(r.edited||0)){skip++;continue;}
+      const i=arr.findIndex(x=>x.id===r.id);
+      if(i>=0&&(r.edited||0)<(arr[i].edited||0)){skip++;continue;}
+      const legacy=!r.edited;
+      if(legacy)r.edited=Date.now();
+      r.dirty=legacy;
+      await save(store,r,true);
+      if(i>=0)arr[i]=r;else arr.push(r);
+      up++;
+    }
+  }
+  syncState.lastReceived=Date.now();await saveSettings("sync",syncState);
+  return {up,skip,del};
+}
+async function receiveFile(file){
+  try{
+    const data=JSON.parse(await file.text());
+    if(!Array.isArray(data.pieces)||!Array.isArray(data.firings))throw new Error("This doesn't look like a Kiln Book file.");
+    const r=await mergeIn(data);
+    render();
+    const msg="Received "+r.up+" new or updated"+(r.skip?", skipped "+r.skip+" (this device had newer edits)":"")+(r.del?", removed "+r.del:"")+".";
+    PHONE?flash(msg):alert(msg);
+  }catch(err){alert("Couldn't read that file: "+err.message);}
+}
+
+/* ---------- phone mode ---------- */
+const PHONE=matchMedia("(max-width:760px)").matches||(matchMedia("(pointer:coarse)").matches&&Math.min(screen.width,screen.height)<=500);
+if(PHONE)document.body.classList.add("phone");
+let P={screen:"home",arg:null,state:{}},findQ="",glazeQ="",glazeAll=false;
+function go(screen,arg){P={screen,arg:arg||null,state:{}};render();window.scrollTo(0,0);}
+function flash(msg){const d=document.createElement("div");d.className="flash";d.textContent=msg;document.body.appendChild(d);setTimeout(()=>d.remove(),3200);}
+const pbar=(title,back)=>`<div class="pbar2"><button class="pback" data-go="${back||"home"}">‹ ${back?"Back":"Home"}</button><strong>${esc(title)}</strong></div>`;
+const photoBtns=id=>`<div class="pair"><button type="button" class="btn big" data-cam="${id}">Take photo</button><button type="button" class="btn big" data-lib="${id}">From library</button></div><input type="file" accept="image/*" capture="environment" hidden id="${id}_cam"><input type="file" accept="image/*" multiple hidden id="${id}_lib">`;
+function bindPhotos(id,arr,thumbSel){
+  const draw=()=>{const el=$(thumbSel);if(el)el.innerHTML=arr.map((s,i)=>`<div class="ph" data-i="${i}"><img src="${s}" alt="Photo ${i+1}" draggable="false"><button type="button" class="rm" data-rm="${i}" aria-label="Remove photo ${i+1}">×</button></div>`).join("");};
+  const add=async files=>{let bad=0;for(const f of files){const s=await shrink(f);if(s)arr.push(s);else bad++;}draw();if(bad)alert(bad+" photo"+(bad===1?"":"s")+" couldn't be read.");};
+  $(`[data-cam="${id}"]`).onclick=()=>$("#"+id+"_cam").click();
+  $(`[data-lib="${id}"]`).onclick=()=>$("#"+id+"_lib").click();
+  for(const k of ["cam","lib"])$("#"+id+"_"+k).addEventListener("change",async e=>{await add(e.target.files);e.target.value="";});
+  $(thumbSel).addEventListener("click",e=>{
+    const b=e.target.closest("[data-rm]");if(b){arr.splice(+b.dataset.rm,1);draw();return;}
+    const im=e.target.closest("img");if(im){$("#lbImg").src=im.src;$("#lb").showModal();}
+  });
+  draw();
+}
+function rowsHTML(list,dest){
+  return list.map(p=>{const c=coverOf(p),af=activeFiringOf(p.id);
+    return `<button class="prow" data-go="${dest}" data-arg="${p.id}">${c?`<img src="${c}" alt="">`:`<span class="noimg"></span>`}<span><strong>${esc(p.name||"Untitled")}</strong><br><span class="meta">${esc([p.form,p.clay].filter(Boolean).join(", "))}</span><br><span class="stage">${esc(p.stage+(p.location?", "+p.location:"")+(af?", in "+af.type.toLowerCase()+" firing":""))}</span></span></button>`;}).join("");
+}
+function renderPhone(){
+  const f={home:pHome,new:pNew,glaze:pGlaze,glazeOne:pGlazeOne,find:pFind,piece:pPiece,check:pCheck,sync:pSync}[P.screen]||pHome;
+  const sc=f();
+  $("#main").innerHTML=sc.html;
+  if(sc.bind)sc.bind();
+}
+$("#main").addEventListener("click",e=>{const g=e.target.closest("[data-go]");if(g)go(g.dataset.go,g.dataset.arg);});
+
+function pHome(){
+  const left=firings.filter(isOpen).reduce((n,f)=>n+remaining(f).length,0);
+  return {html:`<div class="home"><h1>Kiln Book</h1>
+    ${memoryOnly?`<p class="meta" style="color:var(--iron)">This browser is blocking storage, so nothing will be saved.</p>`:""}
+    <button class="bigbtn primary" data-go="new">New piece</button>
+    <button class="bigbtn" data-go="glaze">Glazing</button>
+    <button class="bigbtn" data-go="find">Find a piece</button>
+    <button class="bigbtn" data-go="check">Checklist${left?" ("+left+")":""}</button>
+    <button class="bigbtn" data-go="sync">Sync</button>
+    <p class="meta">${pieces.length} piece${pieces.length===1?"":"s"}</p></div>`};
+}
+
+function pNew(){
+  const st=P.state;st.photos=[];
+  const rc=lists.recent||{};
+  const loc0=rc.location!==undefined?rc.location:(lists.location.find(l=>/shelf, formed/i.test(l))||"");
+  return {html:`${pbar("New piece")}<div class="pform">
+    ${photoBtns("np")}<div class="photos" id="np_t"></div>
+    <label>Name<input id="n_name" autocomplete="off" autocapitalize="words"></label>
+    ${pickHTML("n_form","form",rc.form||"","Form")}
+    ${pickHTML("n_clay","clay",rc.clay||"","Clay body")}
+    ${pickHTML("n_method","method",rc.method||"","Forming method")}
+    ${pickHTML("n_loc","location",loc0,"Where it is now")}
+    <button class="bigbtn primary" id="n_save">Save piece</button>
+    <button class="btn big" id="n_more">Save and add another</button></div>`,
+  bind(){
+    bindPhotos("np",st.photos,"#np_t");
+    const doSave=async again=>{
+      const name=$("#n_name").value.trim();
+      if(!name){$("#n_name").focus();return;}
+      const loc=dlgSelVal($("#n_loc"));
+      const p={id:uid(),name,clay:dlgSelVal($("#n_clay")),form:dlgSelVal($("#n_form")),method:dlgSelVal($("#n_method")),made:today(),stage:"Formed",stages:[{name:"Formed",date:today(),location:loc}],glazes:[],notes:"",photos:st.photos,cover:0,status:"Keeping",location:loc,bisqueCone:"",glazeCone:"",atmosphere:"",weightLb:"",volumeOz:"",h:"",w:"",l:""};
+      try{await save("pieces",p);}catch(e){alert("Could not save: "+e.message);return;}
+      pieces.push(p);
+      lists.recent={clay:p.clay,form:p.form,method:p.method,location:loc};saveLists().catch(()=>{});
+      flash("Saved "+name);go(again?"new":"home");
+    };
+    $("#n_save").onclick=()=>doSave(false);
+    $("#n_more").onclick=()=>doSave(true);
+  }};
+}
+
+function pGlaze(){
+  return {html:`${pbar("Glazing")}<div class="pform">
+    <input type="search" id="gq" placeholder="Search pieces" value="${esc(glazeQ)}" aria-label="Search pieces">
+    <div class="chips"><button class="chip" id="gall" aria-pressed="${!glazeAll}">Bisqued pieces only</button></div>
+    <div id="gres"></div></div>`,
+  bind(){
+    const draw=()=>{
+      const q=glazeQ.toLowerCase().trim();
+      const list=pieces.filter(p=>(glazeAll||p.stage==="Bisqued")&&(!q||searchText(p).includes(q))).sort((a,b)=>(b.made||"").localeCompare(a.made||"")).slice(0,40);
+      $("#gres").innerHTML=rowsHTML(list,"glazeOne")||`<div class="meta">${glazeAll?"No pieces match.":"No bisqued pieces. Turn off the filter to see everything."}</div>`;
+    };
+    $("#gq").addEventListener("input",e=>{glazeQ=e.target.value;draw();});
+    $("#gall").onclick=e=>{glazeAll=!glazeAll;e.currentTarget.setAttribute("aria-pressed",!glazeAll);draw();};
+    draw();
+  }};
+}
+
+function pGlazeOne(){
+  const p=pieces.find(x=>x.id===P.arg);if(!p)return pGlaze();
+  const st=P.state;st.photos=[];st.rows=[{kind:"Glaze",name:"",area:"",method:""}];
+  const optsPlain=(list,cur)=>list.map(v=>`<option${v===cur?" selected":""}>${esc(v)}</option>`).join("");
+  return {html:`${pbar("Glaze: "+(p.name||"piece"),"glaze")}<div class="pform">
+    ${coverOf(p)?`<img class="bigimg" src="${coverOf(p)}" alt="" style="max-height:30vh">`:""}
+    ${p.glazes.length?`<div class="meta">Already recorded: ${esc(lookOf(p))}</div>`:""}
+    <div id="coat" class="pform"></div>
+    <button type="button" class="btn big" id="addCoat">+ Add another coating</button>
+    ${photoBtns("gp")}<div class="photos" id="gp_t"></div>
+    <button class="bigbtn primary" id="g_save">Save glazing</button></div>`,
+  bind(){
+    const readRows=()=>[...document.querySelectorAll("#coat .coat")].map(r=>({kind:r.querySelector(".g_kind").value,name:dlgSelVal(r.querySelector(".g_name")),area:dlgSelVal(r.querySelector(".g_area")),method:dlgSelVal(r.querySelector(".g_method"))}));
+    const draw=()=>{
+      $("#coat").innerHTML=st.rows.map((g,i)=>{const key=KEYOF[g.kind]||"glaze";return `<div class="coat" data-i="${i}">
+        <div class="two"><label>Type<select class="g_kind">${optsPlain(KINDS,g.kind)}</select></label>
+        <label>Name<div class="pick"><select class="g_name" data-key="${key}" data-blank="1" data-prev="${esc(g.name)}">${optsHTML(key,g.name,{blank:true})}</select><button type="button" class="btn add" data-add>+ Add</button></div></label></div>
+        <div class="two"><label>Where<select class="g_area" data-key="area" data-blank="1" data-addopt="1" data-prev="${esc(g.area)}">${optsHTML("area",g.area,{blank:true,add:true})}</select></label>
+        <label>How applied<select class="g_method" data-key="application" data-blank="1" data-addopt="1" data-prev="${esc(g.method)}">${optsHTML("application",g.method,{blank:true,add:true})}</select></label></div>
+        ${st.rows.length>1?`<button type="button" class="btn" data-crm>Remove this coating</button>`:""}</div>`;}).join("");
+    };
+    $("#coat").addEventListener("change",e=>{
+      if(e.target.classList.contains("g_kind")){const row=e.target.closest(".coat"),s=row.querySelector(".g_name");s.dataset.key=KEYOF[e.target.value];fillSel(s,"");}
+    });
+    $("#coat").addEventListener("click",e=>{const b=e.target.closest("[data-crm]");if(b){st.rows=readRows();st.rows.splice(+b.closest(".coat").dataset.i,1);draw();}});
+    $("#addCoat").onclick=()=>{st.rows=readRows();st.rows.push({kind:"Glaze",name:"",area:"",method:""});draw();};
+    bindPhotos("gp",st.photos,"#gp_t");
+    draw();
+    $("#g_save").onclick=async()=>{
+      const rows=readRows().filter(r=>r.name);
+      if(!rows.length&&!st.photos.length){flash("Add a coating or a photo first.");return;}
+      const p2={...p,glazes:[...p.glazes,...rows.map(r=>({...r,note:""}))],photos:[...p.photos,...st.photos]};
+      if(STAGES.indexOf(p.stage)<STAGES.indexOf("Glazed")){p2.stages=[...p.stages,{name:"Glazed",date:today(),location:p.location||""}];p2.stage="Glazed";}
+      try{await save("pieces",p2);}catch(e){alert("Could not save: "+e.message);return;}
+      pieces[pieces.findIndex(x=>x.id===p.id)]=p2;
+      flash("Saved glazing for "+(p.name||"piece"));go("glaze");
+    };
+  }};
+}
+
+function pFind(){
+  return {html:`${pbar("Find a piece")}<div class="pform">
+    <input type="search" id="fq" placeholder="Name, clay, glaze, shelf, stage" value="${esc(findQ)}" aria-label="Search pieces"><div id="fres"></div></div>`,
+  bind(){
+    const draw=()=>{
+      const q=findQ.toLowerCase().trim();
+      let list=pieces.filter(p=>{if(!q)return true;const af=activeFiringOf(p.id);return (searchText(p)+(af?" in kiln "+af.type+" "+(af.shelf||""):"")).toLowerCase().includes(q);});
+      list=list.sort((a,b)=>q?(a.name||"").localeCompare(b.name||""):(b.edited||0)-(a.edited||0)).slice(0,40);
+      $("#fres").innerHTML=(q?"":`<div class="meta" style="margin-bottom:8px">Recently changed</div>`)+(rowsHTML(list,"piece")||`<div class="meta">No pieces match.</div>`);
+    };
+    $("#fq").addEventListener("input",e=>{findQ=e.target.value;draw();});
+    draw();
+  }};
+}
+
+function pPiece(){
+  const p=pieces.find(x=>x.id===P.arg);if(!p)return pFind();
+  const st=P.state;st.photos=[...p.photos];
+  const af=activeFiringOf(p.id);
+  const facts=[["Clay",p.clay],["Form",p.form],["Method",p.method],["Glazes",lookOf(p)],["Cones",[p.bisqueCone&&"bisque "+p.bisqueCone,p.glazeCone&&"glaze "+p.glazeCone].filter(Boolean).join(", ")]].filter(x=>x[1]).map(x=>`<div><span class="meta">${x[0]}:</span> ${esc(x[1])}</div>`).join("");
+  const stageOpts=[...new Set([...STAGES,p.stage])].map(v=>`<option${v===p.stage?" selected":""}>${esc(v)}</option>`).join("");
+  return {html:`${pbar(p.name||"Piece","find")}<div class="pform">
+    ${coverOf(p)?`<img class="bigimg" id="pc_big" src="${coverOf(p)}" alt="">`:""}
+    <div class="photos" id="pp_t"></div>
+    <div class="facts">${facts}</div>
+    ${af?`<div class="banner">In the ${esc(af.type.toLowerCase())} firing${af.shelf?". Look on: <strong>"+esc(af.shelf)+"</strong>":""}.</div>`:""}
+    <label>Stage<select id="pp_stage">${stageOpts}</select></label>
+    ${pickHTML("pp_loc","location",p.location,"Where it is now")}
+    <label>Notes<textarea id="pp_notes" style="min-height:90px">${esc(p.notes)}</textarea></label>
+    ${photoBtns("pp")}
+    <button class="bigbtn primary" id="pp_save">Save changes</button>
+    <button class="btn big" id="pp_full">Edit all details</button></div>`,
+  bind(){
+    bindPhotos("pp",st.photos,"#pp_t");
+    const big=$("#pc_big");if(big)big.onclick=()=>{$("#lbImg").src=big.src;$("#lb").showModal();};
+    $("#pp_full").onclick=()=>editPiece(p.id);
+    $("#pp_save").onclick=async()=>{
+      const ns=$("#pp_stage").value,loc=dlgSelVal($("#pp_loc"));
+      const p2={...p,photos:st.photos,notes:$("#pp_notes").value,location:loc};
+      if(ns!==p.stage){p2.stages=[...p.stages,{name:ns,date:today(),location:loc}];p2.stage=ns;}
+      if(p2.cover>=p2.photos.length)p2.cover=0;
+      try{await save("pieces",p2);}catch(e){alert("Could not save: "+e.message);return;}
+      pieces[pieces.findIndex(x=>x.id===p.id)]=p2;
+      flash("Saved");go("find");
+    };
+  }};
+}
+
+function pCheck(){return {html:pbar("Checklist")+checklistHTML()};}
+
+function pSync(){
+  const c=pending(),n=c.p.length+c.f.length+c.t.length;
+  const fmt=t=>t?new Date(t).toLocaleString():"never";
+  return {html:`${pbar("Sync")}<div class="pform">
+    <p class="meta">Last sent: ${fmt(syncState.lastSent)}<br>Last received: ${fmt(syncState.lastReceived)}</p>
+    <button class="bigbtn primary" id="sy_send">Send my changes (${n})</button>
+    <button class="bigbtn" id="sy_all">Send everything</button>
+    <label class="bigbtn">Receive a file<input type="file" id="sy_in" accept=".json,application/json" hidden></label>
+    <p class="meta">Send makes a file you can AirDrop to the other device or save in Files. On the other device, open Kiln Book and use Receive (phone) or Import (Mac). If both devices changed the same piece, the newer edit wins. Send often, and treat the Mac as the safe copy.</p></div>`,
+  bind(){
+    $("#sy_send").onclick=()=>sendFile(false,true);
+    $("#sy_all").onclick=()=>sendFile(true,true);
+    $("#sy_in").addEventListener("change",async e=>{const f=e.target.files[0];if(f)await receiveFile(f);e.target.value="";});
+  }};
+}
+
+if("serviceWorker" in navigator&&location.protocol.startsWith("http"))navigator.serviceWorker.register("sw.js").catch(()=>{});
+init();
+</script>
+</body>
+</html>
